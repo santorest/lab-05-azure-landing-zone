@@ -133,7 +133,7 @@ The only results in this lab are test and scan outputs; there is no deployment t
 | Checkov 3.3.20, local run | **50 passed, 0 failed, 11 skipped, 0 parsing errors**. Every skip is justified in `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + azurerm ruleset 0.32.0, local run | **0 issues** (one rule ignored on 4 resources, justified) |
 | Demo PR [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP from the Internet ([details](docs/demo-prs.md)) | **Refused**: `terraform (landing-zone)` failed on the management-port validation; the other 12 jobs passed, **including Checkov and Trivy, which did not flag the rule** |
-| CI on GitHub Actions, [run 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 jobs passed**: the same 47 tests; Checkov 49 passed / 0 failed / 9 skipped; Trivy 0 High/Critical (its 5 Low/Medium findings are the same storage trade-offs, ignored with reasons); tflint clean; no standing privileged access; gitleaks: no leaks |
+| CI on GitHub Actions, [run 36728843729](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36728843729) (commit `49d9f7f`, after the final-review fixes, Terraform 1.16.4) | **13/13 jobs passed**: the same 52 tests; Checkov 50 passed / 0 failed / 11 skipped, 0 parsing errors; Trivy 0 High/Critical (its Low/Medium storage findings ignored with reasons); tflint clean; standing-access check caught all 5 known-bad fixtures and passed the repo; gitleaks: no leaks |
 
 ## 6. What was verified and what wasn't
 
