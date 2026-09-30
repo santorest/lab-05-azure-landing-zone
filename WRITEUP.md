@@ -130,6 +130,7 @@ The only results in this lab are test and scan outputs; there is no deployment t
 | `terraform test`, local run 2026-09-29 (Terraform 1.16.2) | **47 passed, 0 failed** (bootstrap 3, governance 9, network 15, firewall 3, logging 7, identity 6, landing-zone 4) |
 | Checkov 3.3.20, local run | **49 passed, 0 failed, 9 skipped**. Every skip is justified in `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + azurerm ruleset 0.32.0, local run | **0 issues** (one rule ignored on 4 resources, justified) |
+| Demo PR [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP from the Internet ([details](docs/demo-prs.md)) | **Refused**: `terraform (landing-zone)` failed on the management-port validation; the other 12 jobs passed, **including Checkov and Trivy, which did not flag the rule** |
 | CI on GitHub Actions, [run 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 jobs passed**: the same 47 tests; Checkov 49 passed / 0 failed / 9 skipped; Trivy 0 High/Critical (its 5 Low/Medium findings are the same storage trade-offs, ignored with reasons); tflint clean; no standing privileged access; gitleaks: no leaks |
 
 ## 6. What was verified and what wasn't
@@ -171,6 +172,9 @@ Lessons from building it:
   a skip.
 - **Terraform's `&&` doesn't short-circuit.** A validation like "is an IP *and* not private" raised an evaluation
   error on malformed input instead of the intended message, until it was wrapped in `try(…, false)`.
+- **Static scanners miss what flows through variables.** In the RDP demo PR the unsafe rule came from a variable
+  default through a module's `for_each`; Checkov and Trivy both passed it. The input validation (and its tests)
+  refused it. Scanners are the second line, not the control.
 - **CI earned its keep on day one.** Dependabot's first run proposed azurerm 5.x for every module; the tests failed
   on its breaking schema changes (private DNS zone links take different arguments). Provider majors are now held
   back in `dependabot.yml` and will be a deliberate migration.

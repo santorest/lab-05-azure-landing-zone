@@ -133,6 +133,7 @@ Los únicos resultados de este laboratorio son salidas de pruebas y escáneres; 
 | `terraform test`, ejecución local del 2026-09-29 (Terraform 1.16.2) | **47 correctas, 0 fallidas** (bootstrap 3, governance 9, network 15, firewall 3, logging 7, identity 6, landing-zone 4) |
 | Checkov 3.3.20, ejecución local | **49 correctas, 0 fallidas, 9 omitidas**. Cada omisión está justificada en `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + reglas azurerm 0.32.0, ejecución local | **0 problemas** (una regla ignorada en 4 recursos, justificada) |
+| PR de demostración [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP desde Internet ([detalles](docs/demo-prs.md), en inglés) | **Rechazado**: `terraform (landing-zone)` falló en la validación de puertos de administración; los otros 12 trabajos pasaron, **incluidos Checkov y Trivy, que no detectaron la regla** |
 | CI en GitHub Actions, [ejecución 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 trabajos correctos**: las mismas 47 pruebas; Checkov 49 correctas / 0 fallidas / 9 omitidas; Trivy 0 High/Critical (sus 5 hallazgos Low/Medium son las mismas concesiones de almacenamiento, ignoradas con motivo); tflint sin problemas; ningún acceso privilegiado permanente; gitleaks: sin fugas |
 
 ## 6. Qué se verificó y qué no
@@ -177,6 +178,9 @@ Lecciones de la construcción:
   solución fue un endpoint, no una omisión.
 - **El `&&` de Terraform no cortocircuita.** Una validación del tipo "es una IP *y* no es privada" producía un error
   de evaluación con entradas mal formadas en lugar del mensaje previsto, hasta envolverla en `try(…, false)`.
+- **Los escáneres estáticos no ven lo que llega por variables.** En el PR de demostración de RDP, la regla insegura
+  venía del valor por defecto de una variable a través del `for_each` de un módulo; Checkov y Trivy la dejaron pasar.
+  La validación de entradas (y sus pruebas) la rechazó. Los escáneres son la segunda línea, no el control.
 - **La CI demostró su valor el primer día.** La primera ejecución de Dependabot propuso azurerm 5.x para todos los
   módulos; las pruebas fallaron por sus cambios incompatibles de esquema (los vínculos de zonas DNS privadas usan
   otros argumentos). Las versiones mayores de los proveedores ahora se excluyen en `dependabot.yml` y se migrarán
