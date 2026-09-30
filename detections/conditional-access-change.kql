@@ -1,0 +1,6 @@
+// Any Conditional Access policy added, updated or deleted (needs Entra audit logs in the workspace).
+AuditLogs
+| where OperationName in~ ("Add conditional access policy", "Update conditional access policy", "Delete conditional access policy")
+| extend Actor = coalesce(tostring(InitiatedBy.user.userPrincipalName), tostring(InitiatedBy.app.displayName))
+| extend Policy = tostring(TargetResources[0].displayName)
+| project TimeGenerated, OperationName, Actor, Policy, Result

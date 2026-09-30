@@ -1,0 +1,47 @@
+# Sentinel scheduled analytics rules. Each query_file lives next to this file.
+rules:
+  - id: privileged-role-assignment
+    name: Privileged Azure role assigned (Owner / User Access Administrator)
+    description: A standing Owner or User Access Administrator assignment bypasses the PIM-eligible model.
+    severity: High
+    frequency: PT1H
+    period: PT1H
+    tactics: [PrivilegeEscalation, Persistence]
+    techniques: [T1098]
+    query_file: privileged-role-assignment.kql
+  - id: nsg-open-to-internet
+    name: NSG rule allows inbound traffic from the Internet
+    description: A new or changed NSG rule allows inbound traffic from any/Internet.
+    severity: Medium
+    frequency: PT1H
+    period: PT1H
+    tactics: [DefenseEvasion]
+    techniques: [T1562]
+    query_file: nsg-open-to-internet.kql
+  - id: conditional-access-change
+    name: Conditional Access policy created, changed or deleted
+    description: Changes to Conditional Access can silently remove MFA requirements.
+    severity: Medium
+    frequency: PT1H
+    period: PT1H
+    tactics: [DefenseEvasion, CredentialAccess]
+    techniques: [T1556]
+    query_file: conditional-access-change.kql
+  - id: mass-resource-deletion
+    name: Mass resource deletion by one caller
+    description: Ten or more successful delete operations by the same caller within 15 minutes.
+    severity: High
+    frequency: PT15M
+    period: PT15M
+    tactics: [Impact]
+    techniques: [T1485]
+    query_file: mass-resource-deletion.kql
+  - id: signin-outside-allowed-countries
+    name: Successful sign-in from a country outside the allow-list
+    description: A successful interactive sign-in from a country the organisation does not operate in.
+    severity: Medium
+    frequency: PT1H
+    period: PT1H
+    tactics: [InitialAccess]
+    techniques: [T1078]
+    query_file: signin-outside-allowed-countries.kql

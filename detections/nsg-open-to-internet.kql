@@ -1,0 +1,8 @@
+// NSG rule created or changed to allow inbound traffic from any source / the Internet.
+AzureActivity
+| where OperationNameValue =~ "MICROSOFT.NETWORK/NETWORKSECURITYGROUPS/SECURITYRULES/WRITE" and ActivityStatusValue =~ "Success"
+| extend Rule = parse_json(tostring(Properties_d.requestbody)).properties
+| where tostring(Rule.direction) =~ "Inbound" and tostring(Rule.access) =~ "Allow"
+| where tostring(Rule.sourceAddressPrefix) in~ ("*", "Internet", "Any", "0.0.0.0/0")
+| project TimeGenerated, Caller, CallerIpAddress, NsgRule = _ResourceId,
+          Ports = coalesce(tostring(Rule.destinationPortRange), tostring(Rule.destinationPortRanges))

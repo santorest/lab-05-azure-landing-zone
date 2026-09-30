@@ -1,0 +1,5 @@
+// Ten or more successful deletes by one caller in the rule's 15-minute window.
+AzureActivity
+| where OperationNameValue endswith "/DELETE" and ActivityStatusValue =~ "Success"
+| summarize Deletions = count(), Resources = make_set(_ResourceId, 50), FirstSeen = min(TimeGenerated), LastSeen = max(TimeGenerated) by Caller
+| where Deletions >= 10

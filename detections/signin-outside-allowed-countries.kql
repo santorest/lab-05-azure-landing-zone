@@ -1,0 +1,6 @@
+// Successful sign-in from a country outside the allow-list (needs Entra sign-in logs in the workspace).
+let AllowedCountries = dynamic(["US"]); // edit for the organisation
+SigninLogs
+| where ResultType == "0"
+| where isnotempty(Location) and Location !in (AllowedCountries)
+| project TimeGenerated, UserPrincipalName, IPAddress, Location, AppDisplayName, ClientAppUsed
