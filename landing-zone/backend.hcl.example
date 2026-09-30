@@ -1,0 +1,6 @@
+# Copy to backend.hcl (git-ignored) and run: terraform init -backend-config=backend.hcl
+resource_group_name  = "rg-corp-tfstate"
+storage_account_name = "corptfstate01" # bootstrap output storage_account_name
+container_name       = "tfstate"
+key                  = "landing-zone.tfstate"
+use_azuread_auth     = true

@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars (git-ignored). Example values only — use your own IDs and globally unique names.
+prefix                = "corp"
+location              = "eastus2"
+subscription_id       = "00000000-0000-0000-0000-000000000000"
+tenant_id             = "00000000-0000-0000-0000-000000000000"
+tags                  = { owner = "platform-team", env = "prod", "cost-center" = "cc-001" }
+allowed_locations     = ["eastus2"]
+subscription_placement = "online"
+enable_firewall       = false
+storage_account_name  = "corpworkload01"
+key_vault_name        = "kv-corp-platform"
+budget_amount         = 50
+budget_start_date     = "2026-10-01T00:00:00Z"
+budget_contact_emails = ["secops@example.com"]
+ca_state              = "enabledForReportingButNotEnforced"
+break_glass_group_id  = null
+nsg_rules = {
+  "online/snet-app" = [{
+    name = "allow-https-in", priority = 100, direction = "Inbound", access = "Allow", protocol = "Tcp",
+    source_address_prefix = "Internet", destination_address_prefix = "*", destination_port_ranges = ["443"]
+  }]
+}
