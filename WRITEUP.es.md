@@ -27,7 +27,7 @@ bundle: "Publicado en el sitio del portafolio con su suma SHA-256"
 | **Rol asumido** | Ingeniero de seguridad en la nube que construye la primera suscripción de una organización pequeña |
 | **Entorno** | Una suscripción de Azure y un tenant de Entra (diseñado para ellos), GitHub Actions (utilizado) |
 | **Herramientas** | Terraform (azurerm 4.x, azuread 3.x), Azure Policy, Microsoft Sentinel/KQL, Entra ID, tflint, Checkov, Trivy |
-| **Entregable** | 5 módulos + raíz + bootstrap del estado, 47 pruebas sin conexión, 5 detecciones, pipeline de CI, guías de despliegue y desmontaje |
+| **Entregable** | 5 módulos + raíz + bootstrap del estado, 52 pruebas sin conexión, 5 detecciones, pipeline de CI, guías de despliegue y desmontaje |
 
 ---
 
@@ -90,8 +90,11 @@ falta, o si una regla no tiene táctica.
 ### Identidad
 El acceso condicional empieza en modo solo informe, y el módulo rechaza `ca_state = "enabled"` si no se indica
 un grupo de acceso de emergencia (break glass), que queda excluido de todas las directivas. Owner, User Access
-Administrator y Global Administrator son asignaciones **elegibles** de PIM que caducan a los 365 días. Un paso
-de CI falla si algún archivo de Terraform concede acceso privilegiado permanente.
+Administrator y Global Administrator son asignaciones **elegibles** de PIM, nunca activas. La elegibilidad de los
+dos roles de Azure caduca a los 365 días; la de Global Administrator no tiene caducidad en Terraform (el recurso de
+azuread no permite fijarla), así que su duración depende de la configuración de roles de PIM del tenant. Un paso de
+CI falla si Terraform concede acceso permanente a un rol privilegiado, ya sea por su nombre (sin importar
+mayúsculas) o por su ID.
 
 ## 4. Cómo se valida
 
@@ -118,11 +121,11 @@ se crearía. Las pruebas negativas (`expect_failures`) verifican lo que el códi
 | Una landing zone sin hub | `network` |
 | Lista de ubicaciones vacía, ubicación desconocida para la suscripción, ID de suscripción que no es un GUID | `governance` |
 | Un presupuesto que no empieza el día 1 de un mes o no tiene contactos | `governance` |
-| Aplicar el acceso condicional sin break glass; un estado de directiva mal escrito | `identity` |
-| Desajustes en las detecciones (consulta huérfana, regla sin tácticas) | `logging` |
+| Aplicar el acceso condicional sin break glass; un estado de directiva mal escrito; un ID de break glass vacío o que no es un GUID | `identity` |
+| Desajustes en las detecciones: consulta huérfana, archivo de consulta inexistente, regla sin tácticas (un caso de prueba para cada uno) | `logging` |
 | Activar el firewall sin sus subredes | `firewall` |
 | Una IP de despliegue que es un rango, privada o reservada | `bootstrap` |
-| Etiquetas raíz sin `owner` / `env` / `cost-center`, o vacías | `landing-zone` |
+| Etiquetas raíz sin `owner` / `env` / `cost-center`, o vacías; una `location` fuera de `allowed_locations` | `landing-zone` |
 
 ## 5. Resultados
 
@@ -130,11 +133,11 @@ Los únicos resultados de este laboratorio son salidas de pruebas y escáneres; 
 
 | Comprobación | Resultado |
 |---|---|
-| `terraform test`, ejecución local del 2026-09-29 (Terraform 1.16.2) | **47 correctas, 0 fallidas** (bootstrap 3, governance 9, network 15, firewall 3, logging 7, identity 6, landing-zone 4) |
-| Checkov 3.3.20, ejecución local | **49 correctas, 0 fallidas, 9 omitidas**. Cada omisión está justificada en `security/EXCEPTIONS.md` |
+| `terraform test`, ejecución local del 2026-09-30 tras las correcciones de la revisión final (Terraform 1.16.2) | **52 correctas, 0 fallidas** (bootstrap 3, governance 9, network 15, firewall 3, logging 9, identity 8, landing-zone 5) |
+| Checkov 3.3.20, ejecución local | **50 correctas, 0 fallidas, 11 omitidas, 0 errores de análisis**. Cada omisión está justificada en `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + reglas azurerm 0.32.0, ejecución local | **0 problemas** (una regla ignorada en 4 recursos, justificada) |
 | PR de demostración [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP desde Internet ([detalles](docs/demo-prs.md), en inglés) | **Rechazado**: `terraform (landing-zone)` falló en la validación de puertos de administración; los otros 12 trabajos pasaron, **incluidos Checkov y Trivy, que no detectaron la regla** |
-| CI en GitHub Actions, [ejecución 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 trabajos correctos**: las mismas 47 pruebas; Checkov 49 correctas / 0 fallidas / 9 omitidas; Trivy 0 High/Critical (sus 5 hallazgos Low/Medium son las mismas concesiones de almacenamiento, ignoradas con motivo); tflint sin problemas; ningún acceso privilegiado permanente; gitleaks: sin fugas |
+| CI en GitHub Actions, [ejecución 36728843729](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36728843729) (commit `49d9f7f`, tras las correcciones de la revisión final, Terraform 1.16.4) | **13/13 trabajos correctos**: las mismas 52 pruebas; Checkov 50 correctas / 0 fallidas / 11 omitidas, 0 errores de análisis; Trivy 0 High/Critical (sus hallazgos Low/Medium de almacenamiento, ignorados con motivo); tflint sin problemas; la comprobación de acceso permanente detectó los 5 casos incorrectos conocidos y aprobó el repositorio; gitleaks: sin fugas |
 
 ## 6. Qué se verificó y qué no
 
@@ -171,8 +174,11 @@ Lecciones de la construcción:
   pruebas positivas usan `command = apply` contra los simulacros (sin llamadas a la API) y las negativas usan `plan`.
 - **Un escáner puede fallar en silencio.** Checkov informó "Parsing errors: 1" y omitió por completo el módulo de
   gobernanza porque no podía analizar las claves `if`/`then` sin comillas dentro de `jsonencode`. Al ponerlas entre
-  comillas, el módulo se pudo escanear. Ahora cualquier error de análisis se revisa, no solo el recuento de
-  comprobaciones fallidas.
+  comillas, el módulo se pudo escanear, y ahora la CI falla ante cualquier error de análisis de Checkov.
+- **ID simulados idénticos hacen que las aserciones pasen sin probar nada.** La revisión final encontró dos
+  aserciones (qué grupo recibe la elegibilidad de PIM y qué zona DNS usa el Key Vault) que habrían pasado con un
+  cableado incorrecto, porque todos los grupos o zonas simulados tenían el mismo ID. Ahora usan ID distintos
+  mediante overrides, y cada una se comprobó rompiendo el código a propósito y viendo fallar la prueba.
 - **Un hallazgo de escáner reveló un fallo real de diseño.** El Key Vault tenía el acceso público desactivado y
   ningún endpoint privado, así que nada podía alcanzarlo. La comprobación CKV2_AZURE_32 de Checkov lo señaló, y la
   solución fue un endpoint, no una omisión.

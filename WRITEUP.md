@@ -26,7 +26,7 @@ bundle: "Published on the portfolio site with its SHA-256 checksum"
 | **Role played** | Cloud security engineer building the first subscription for a small organisation |
 | **Environment** | One Azure subscription + Entra tenant (designed for), GitHub Actions (used) |
 | **Tools** | Terraform (azurerm 4.x, azuread 3.x), Azure Policy, Microsoft Sentinel/KQL, Entra ID, tflint, Checkov, Trivy |
-| **Deliverable** | 5 modules + root + state bootstrap, 47 offline tests, 5 detections, CI pipeline, deploy/teardown guides |
+| **Deliverable** | 5 modules + root + state bootstrap, 52 offline tests, 5 detections, CI pipeline, deploy/teardown guides |
 
 ---
 
@@ -87,8 +87,10 @@ tactic.
 ### Identity
 Conditional Access starts in report-only mode, and the module refuses `ca_state = "enabled"` unless a
 break-glass group is given (and excluded from every policy). Owner, User Access Administrator and Global
-Administrator are PIM **eligible** assignments that expire after 365 days. A CI step fails if any Terraform
-file grants standing privileged access.
+Administrator are PIM **eligible** assignments, never active ones. The two Azure roles' eligibility expires after
+365 days; the Global Administrator eligibility has no expiry in Terraform (the azuread resource can't set one), so
+its duration comes from the tenant's PIM role settings. A CI step fails if Terraform grants standing access to a
+privileged role, whether by role name in any case or by role ID.
 
 ## 4. How it's validated
 
@@ -115,11 +117,11 @@ API calls. Positive tests assert the security properties of what would be create
 | A landing zone without a hub | `network` |
 | Empty allowed-locations list, unknown placement, non-GUID subscription | `governance` |
 | A budget that doesn't start on the 1st of a month, or has no contacts | `governance` |
-| Enforcing Conditional Access without break glass; a misspelt CA state | `identity` |
-| Detection drift (orphan query, rule without tactics) | `logging` |
+| Enforcing Conditional Access without break glass; a misspelt CA state; a break-glass ID that is empty or not a GUID | `identity` |
+| Detection drift: an orphan query, a missing query file, a rule without tactics (one fixture each) | `logging` |
 | Firewall enabled without its subnets | `firewall` |
 | A deployer IP that is a range, private or reserved | `bootstrap` |
-| Root tags missing or empty `owner` / `env` / `cost-center` | `landing-zone` |
+| Root tags missing or empty `owner` / `env` / `cost-center`; a `location` outside `allowed_locations` | `landing-zone` |
 
 ## 5. Results
 
@@ -127,11 +129,11 @@ The only results in this lab are test and scan outputs; there is no deployment t
 
 | Check | Result |
 |---|---|
-| `terraform test`, local run 2026-09-29 (Terraform 1.16.2) | **47 passed, 0 failed** (bootstrap 3, governance 9, network 15, firewall 3, logging 7, identity 6, landing-zone 4) |
-| Checkov 3.3.20, local run | **49 passed, 0 failed, 9 skipped**. Every skip is justified in `security/EXCEPTIONS.md` |
+| `terraform test`, local run 2026-09-30 after the final-review fixes (Terraform 1.16.2) | **52 passed, 0 failed** (bootstrap 3, governance 9, network 15, firewall 3, logging 9, identity 8, landing-zone 5) |
+| Checkov 3.3.20, local run | **50 passed, 0 failed, 11 skipped, 0 parsing errors**. Every skip is justified in `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + azurerm ruleset 0.32.0, local run | **0 issues** (one rule ignored on 4 resources, justified) |
 | Demo PR [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP from the Internet ([details](docs/demo-prs.md)) | **Refused**: `terraform (landing-zone)` failed on the management-port validation; the other 12 jobs passed, **including Checkov and Trivy, which did not flag the rule** |
-| CI on GitHub Actions, [run 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 jobs passed**: the same 47 tests; Checkov 49 passed / 0 failed / 9 skipped; Trivy 0 High/Critical (its 5 Low/Medium findings are the same storage trade-offs, ignored with reasons); tflint clean; no standing privileged access; gitleaks: no leaks |
+| CI on GitHub Actions, [run 36728843729](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36728843729) (commit `49d9f7f`, after the final-review fixes, Terraform 1.16.4) | **13/13 jobs passed**: the same 52 tests; Checkov 50 passed / 0 failed / 11 skipped, 0 parsing errors; Trivy 0 High/Critical (its Low/Medium storage findings ignored with reasons); tflint clean; standing-access check caught all 5 known-bad fixtures and passed the repo; gitleaks: no leaks |
 
 ## 6. What was verified and what wasn't
 
@@ -166,7 +168,11 @@ Lessons from building it:
   `command = apply` against the mocks (still no API calls) and negative tests use `plan`.
 - **A scanner can fail silently.** Checkov reported "Parsing errors: 1" and skipped the governance module
   entirely, because it couldn't parse unquoted `if`/`then` keys inside `jsonencode`. Quoting them made the module
-  scannable. Now any parsing error gets read, not just the failed-check count.
+  scannable, and CI now fails on any Checkov parsing error.
+- **Identical mock IDs make assertions pass trivially.** The final review found two assertions (which group gets
+  PIM eligibility, which DNS zone the Key Vault uses) that would have passed with the wrong wiring, because
+  every mocked group or zone had the same ID. They now use distinct overridden IDs, and each was checked by
+  breaking the code on purpose and watching the test fail.
 - **A scanner finding exposed a real design gap.** The Key Vault had public access disabled and no private
   endpoint, so nothing could reach it. Checkov's CKV2_AZURE_32 pointed at it, and the fix was an endpoint, not
   a skip.

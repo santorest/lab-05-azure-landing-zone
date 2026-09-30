@@ -1,0 +1,11 @@
+# One defect: the rule has no ATT&CK tactic.
+rules:
+  - id: untagged
+    name: untagged
+    description: Fixture rule
+    severity: Low
+    frequency: PT1H
+    period: PT1H
+    tactics: []
+    techniques: [T1485]
+    query_file: used.kql

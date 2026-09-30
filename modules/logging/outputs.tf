@@ -27,3 +27,8 @@ output "rules_without_tactics" {
   description = "Rules with no ATT&CK tactic (must be empty)."
   value       = local.rules_without_tactics
 }
+
+output "key_vault_private_dns_zone_id" {
+  description = "Private DNS zone the Key Vault private endpoint registers in."
+  value       = one(azurerm_private_endpoint.key_vault.private_dns_zone_group[0].private_dns_zone_ids)
+}

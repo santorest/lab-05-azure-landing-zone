@@ -57,6 +57,10 @@ module "firewall" {
   firewall_management_subnet_id = var.enable_firewall ? module.network.subnet_ids["hub/AzureFirewallManagementSubnet"] : null
   route_subnet_ids              = { for k in ["online/snet-app", "internal/snet-app"] : k => module.network.subnet_ids[k] }
   tags                          = var.tags
+
+  # The firewall's public IPs are denied by policy until the exemption exists (and on destroy, the exemption
+  # must outlive them).
+  depends_on = [azurerm_resource_group_policy_exemption.firewall_public_ip]
 }
 
 module "logging" {

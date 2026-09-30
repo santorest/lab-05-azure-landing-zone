@@ -24,6 +24,7 @@ resource "azurerm_public_ip" "management" {
 }
 
 resource "azurerm_firewall_policy" "this" {
+  #checkov:skip=CKV_AZURE_220:IDPS exists only on the Premium SKU; this optional firewall is Basic by design (cost).
   count               = local.n
   name                = "afwp-${var.prefix}"
   location            = var.location
@@ -33,6 +34,7 @@ resource "azurerm_firewall_policy" "this" {
 }
 
 resource "azurerm_firewall" "this" {
+  #checkov:skip=CKV_AZURE_216:Threat intelligence on the Basic SKU supports Alert mode only; Deny needs Standard or Premium.
   count               = local.n
   name                = "afw-${var.prefix}"
   location            = var.location

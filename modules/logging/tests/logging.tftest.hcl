@@ -130,15 +130,37 @@ run "entra_diagnostics_can_be_disabled" {
     condition     = length(azurerm_monitor_aad_diagnostic_setting.entra) == 0
     error_message = "Toggle must remove the tenant diagnostic setting."
   }
+  assert {
+    condition     = toset(keys(azurerm_sentinel_alert_rule_scheduled.this)) == toset(["privileged-role-assignment", "nsg-open-to-internet", "mass-resource-deletion"])
+    error_message = "Rules that query Entra tables (AuditLogs, SigninLogs) must be skipped when Entra logs aren't exported."
+  }
 }
 
 # --- Review Focus 3: detection drift --------------------------------------------------------
 
-run "orphan_query_and_missing_tactics_fail" {
+run "orphan_query_fails" {
   command = plan
   variables {
-    rules_file  = "tests/fixtures/bad-detections/rules.yaml"
-    queries_dir = "tests/fixtures/bad-detections"
+    rules_file  = "tests/fixtures/orphan-query/rules.yaml"
+    queries_dir = "tests/fixtures/orphan-query"
+  }
+  expect_failures = [terraform_data.detection_checks]
+}
+
+run "missing_query_file_fails" {
+  command = plan
+  variables {
+    rules_file  = "tests/fixtures/missing-query/rules.yaml"
+    queries_dir = "tests/fixtures/missing-query"
+  }
+  expect_failures = [terraform_data.detection_checks]
+}
+
+run "rule_without_tactics_fails" {
+  command = plan
+  variables {
+    rules_file  = "tests/fixtures/no-tactics/rules.yaml"
+    queries_dir = "tests/fixtures/no-tactics"
   }
   expect_failures = [terraform_data.detection_checks]
 }

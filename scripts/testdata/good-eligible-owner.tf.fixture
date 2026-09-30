@@ -1,0 +1,12 @@
+# Eligible (PIM) Owner is the intended pattern and must NOT be flagged; neither is a narrow role assignment.
+resource "azurerm_pim_eligible_role_assignment" "ok" {
+  scope              = "/subscriptions/00000000-0000-0000-0000-000000000000"
+  role_definition_id = "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+  principal_id       = "11111111-1111-1111-1111-111111111111"
+}
+
+resource "azurerm_role_assignment" "ok" {
+  scope                = "/subscriptions/00000000-0000-0000-0000-000000000000"
+  role_definition_name = "Monitoring Contributor"
+  principal_id         = "11111111-1111-1111-1111-111111111111"
+}

@@ -1,11 +1,19 @@
 mock_provider "azurerm" {}
 
-mock_provider "azuread" {
-  mock_resource "azuread_group" {
-    defaults = {
-      object_id = "33333333-3333-3333-3333-333333333333"
-    }
-  }
+mock_provider "azuread" {}
+
+# Distinct object IDs per group, so "eligibility goes to platform-admins" can't pass by accident.
+override_resource {
+  target = azuread_group.this["platform-admins"]
+  values = { object_id = "33333333-3333-3333-3333-333333333333" }
+}
+override_resource {
+  target = azuread_group.this["security-operations"]
+  values = { object_id = "44444444-4444-4444-4444-444444444444" }
+}
+override_resource {
+  target = azuread_group.this["workload-contributors"]
+  values = { object_id = "55555555-5555-5555-5555-555555555555" }
 }
 
 variables {
@@ -63,12 +71,12 @@ run "privileged_access_is_eligible_only" {
     error_message = "Owner and User Access Administrator are PIM-eligible at subscription scope."
   }
   assert {
-    condition     = alltrue([for a in azurerm_pim_eligible_role_assignment.subscription : a.principal_id == azuread_group.this["platform-admins"].object_id && a.schedule[0].expiration[0].duration_days == 365])
+    condition     = alltrue([for a in azurerm_pim_eligible_role_assignment.subscription : a.principal_id == "33333333-3333-3333-3333-333333333333" && a.schedule[0].expiration[0].duration_days == 365])
     error_message = "Eligibility goes to platform-admins and expires (365 days by default)."
   }
   assert {
-    condition     = azuread_directory_role_eligibility_schedule_request.global_admin.role_definition_id == "62e90394-69f5-4237-9190-012177145e10" && azuread_directory_role_eligibility_schedule_request.global_admin.directory_scope_id == "/"
-    error_message = "Global Administrator is eligible, tenant-wide."
+    condition     = azuread_directory_role_eligibility_schedule_request.global_admin.role_definition_id == "62e90394-69f5-4237-9190-012177145e10" && azuread_directory_role_eligibility_schedule_request.global_admin.directory_scope_id == "/" && azuread_directory_role_eligibility_schedule_request.global_admin.principal_id == "33333333-3333-3333-3333-333333333333"
+    error_message = "Global Administrator is eligible, tenant-wide, for platform-admins only."
   }
   assert {
     condition     = azuread_group.this["platform-admins"].assignable_to_role
@@ -100,4 +108,21 @@ run "enforcing_with_break_glass_allowed" {
     ca_state             = "enabled"
     break_glass_group_id = "22222222-2222-2222-2222-222222222222"
   }
+}
+
+run "empty_break_glass_id_cannot_enforce" {
+  command = plan
+  variables {
+    ca_state             = "enabled"
+    break_glass_group_id = ""
+  }
+  expect_failures = [var.break_glass_group_id]
+}
+
+run "break_glass_id_must_be_a_guid" {
+  command = plan
+  variables {
+    break_glass_group_id = "break-glass"
+  }
+  expect_failures = [var.break_glass_group_id]
 }

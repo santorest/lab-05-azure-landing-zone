@@ -30,6 +30,8 @@ terraform apply \
 
 The account only accepts traffic from `deployer_ip`, uses Entra auth (no shared keys) and gets a
 CanNotDelete lock. Your user needs **Storage Blob Data Contributor** on it to read and write state.
+Both roots set `features { storage { data_plane_available = false } }`, so Terraform manages the storage
+accounts through ARM only and never needs to reach their (closed) data plane.
 
 ## 2. Configure the landing zone
 
@@ -55,6 +57,12 @@ terraform apply lz.tfplan
 Management groups and policy assignments can take several minutes to propagate. If an assignment fails
 because a management group isn't visible yet, run `terraform apply` again.
 
+Sentinel checks each analytics rule's query against the tables in the workspace. On a brand-new workspace the
+`AzureActivity`, `AuditLogs` or `SigninLogs` tables may not exist until the first logs arrive, and a rule
+can fail with "one of the tables does not exist". The rules are created after the diagnostic settings that
+feed them. If one still fails, wait for logs to arrive (typically minutes) and apply again. With
+`enable_entra_diagnostics = false`, the two rules that read Entra tables are skipped.
+
 ## 4. CI with OIDC (no stored secrets)
 
 To plan from GitHub Actions instead of a laptop:
@@ -74,7 +82,7 @@ This repository's CI never logs in to Azure: all its checks are offline.
 |---|---|---|
 | Deny public IP | `az network public-ip create -g rg-corp-workload -n test-pip` | Fails with `RequestDisallowedByPolicy` |
 | Allowed locations | Create any resource in a region not in `allowed_locations` | Denied by policy |
-| Required tags | Create a resource group without `owner` | Denied by policy |
+| Required tags | Create a resource (e.g. an NSG) without `owner` | Denied by policy. Resource groups themselves are **not** covered: the built-in "Require a tag on resources" skips them; add "Require a tag on resource groups" if you need that |
 | Policy compliance | `az policy state summarize --management-group corp` | Non-compliant resources listed, if any |
 | Private endpoints | From a VM in a spoke: `nslookup <account>.blob.core.windows.net` | Resolves to 10.2.1.x |
 | NSG default deny | Effective security rules on any NIC | Only the rules you added, then deny-all |

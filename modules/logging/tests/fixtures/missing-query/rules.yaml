@@ -1,0 +1,20 @@
+# One defect: the second rule's query file does not exist.
+rules:
+  - id: used
+    name: used
+    description: Fixture rule
+    severity: Low
+    frequency: PT1H
+    period: PT1H
+    tactics: [Impact]
+    techniques: [T1485]
+    query_file: used.kql
+  - id: ghost
+    name: ghost
+    description: Fixture rule
+    severity: Low
+    frequency: PT1H
+    period: PT1H
+    tactics: [Impact]
+    techniques: [T1485]
+    query_file: ghost.kql

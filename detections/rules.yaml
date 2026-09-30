@@ -1,4 +1,5 @@
 # Sentinel scheduled analytics rules. Each query_file lives next to this file.
+# requires_entra: the query reads Entra tables (AuditLogs/SigninLogs); skipped when Entra logs aren't exported.
 rules:
   - id: privileged-role-assignment
     name: Privileged Azure role assigned (Owner / User Access Administrator)
@@ -27,6 +28,7 @@ rules:
     tactics: [DefenseEvasion, CredentialAccess]
     techniques: [T1556]
     query_file: conditional-access-change.kql
+    requires_entra: true
   - id: mass-resource-deletion
     name: Mass resource deletion by one caller
     description: Ten or more successful delete operations by the same caller within 15 minutes.
@@ -45,3 +47,4 @@ rules:
     tactics: [InitialAccess]
     techniques: [T1078]
     query_file: signin-outside-allowed-countries.kql
+    requires_entra: true

@@ -60,6 +60,17 @@ override_resource {
   values = { id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity" }
 }
 
+# Distinct IDs for the two private DNS zones and the deny-public-IP assignment, so the wiring assertions can't
+# pass because every mocked zone or assignment shares one ID.
+override_resource {
+  target = module.network.azurerm_private_dns_zone.vault
+  values = { id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net" }
+}
+override_resource {
+  target = module.governance.azurerm_management_group_policy_assignment.deny_public_ip
+  values = { id = "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/deny-public-ip-distinct" }
+}
+
 variables {
   subscription_id       = "00000000-0000-0000-0000-000000000000"
   tenant_id             = "00000000-0000-0000-0000-000000000000"
@@ -93,6 +104,10 @@ run "default_landing_zone" {
     condition     = alltrue([for rg in azurerm_resource_group.this : rg.tags == var.tags])
     error_message = "Resource groups carry the required tags."
   }
+  assert {
+    condition     = module.logging.key_vault_private_dns_zone_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net"
+    error_message = "The Key Vault private endpoint must use the vaultcore zone, not the blob zone."
+  }
 }
 
 run "firewall_enabled_adds_subnets_and_exemption" {
@@ -120,6 +135,10 @@ run "firewall_enabled_adds_subnets_and_exemption" {
     error_message = "Exemption must be scoped to the connectivity resource group only."
   }
   assert {
+    condition     = azurerm_resource_group_policy_exemption.firewall_public_ip[0].policy_assignment_id == "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policyAssignments/deny-public-ip-distinct"
+    error_message = "The exemption must waive the deny-public-IP assignment, not another one."
+  }
+  assert {
     condition     = contains(keys(module.network.subnet_ids), "hub/AzureFirewallSubnet") && contains(keys(module.network.subnet_ids), "hub/AzureFirewallManagementSubnet")
     error_message = "Firewall subnets are added to the hub."
   }
@@ -141,4 +160,13 @@ run "empty_required_tag_rejected" {
     tags = { owner = "", env = "prod", "cost-center" = "cc-001" }
   }
   expect_failures = [var.tags]
+}
+
+run "location_outside_allowed_locations_rejected" {
+  command = plan
+  variables {
+    location          = "westeurope"
+    allowed_locations = ["eastus2"]
+  }
+  expect_failures = [var.location]
 }

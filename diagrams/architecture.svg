@@ -117,7 +117,7 @@
   <rect x="574" y="528" width="250" height="70" rx="6" class="box idn"/>
   <text x="586" y="548" class="t" style="font-weight:600">PIM — eligible only</text>
   <text x="586" y="566" class="s">Owner, User Access Admin (subscription)</text>
-  <text x="586" y="584" class="s">Global Administrator (tenant) · 365 days</text>
+  <text x="586" y="584" class="s">Global Admin (tenant) · Azure roles 365 days</text>
   <path d="M840,560 H1020 V458" class="dash" marker-end="url(#arrow)"/>
   <text x="850" y="552" class="s">sign-in / audit logs</text>
 
