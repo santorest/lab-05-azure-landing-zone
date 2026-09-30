@@ -11,7 +11,15 @@ resource "azurerm_resource_group" "state" {
   tags     = var.tags
 }
 
+# prevent_destroy would also block the documented teardown and `terraform test`; the CanNotDelete
+# lock below protects the account from anyone, not only from Terraform (security/EXCEPTIONS.md).
+# tflint-ignore: azurerm_resources_missing_prevent_destroy
 resource "azurerm_storage_account" "state" {
+  #checkov:skip=CKV_AZURE_59:Bootstrap runs from the deployer's machine before any network exists; network_rules deny all but deployer_ip.
+  #checkov:skip=CKV2_AZURE_33:Same chicken-and-egg: no VNet exists at bootstrap time; access is limited to deployer_ip and Entra auth.
+  #checkov:skip=CKV_AZURE_33:Queue service is not used; queue logging would also need shared-key access, which is disabled.
+  #checkov:skip=CKV_AZURE_206:ZRS (zone-redundant) by design; geo-replication would copy state outside allowed_locations.
+  #checkov:skip=CKV2_AZURE_1:Platform-managed keys plus infrastructure encryption; CMK needs a vault key and rotation process (revisit for regulated data).
   name                              = var.storage_account_name
   resource_group_name               = azurerm_resource_group.state.name
   location                          = azurerm_resource_group.state.location
@@ -44,8 +52,19 @@ resource "azurerm_storage_account" "state" {
   }
 }
 
+# Protected by the account lock, versioning and container soft delete (see the account above).
+# tflint-ignore: azurerm_resources_missing_prevent_destroy
 resource "azurerm_storage_container" "tfstate" {
+  #checkov:skip=CKV2_AZURE_21:The Log Analytics workspace doesn't exist at bootstrap time; add the state account to diagnostic_targets after the landing zone is applied.
   name                  = "tfstate"
   storage_account_id    = azurerm_storage_account.state.id
   container_access_type = "private"
+}
+
+# Remove this lock deliberately (docs/teardown-and-cost.md) before destroying the state account.
+resource "azurerm_management_lock" "state" {
+  name       = "lock-${var.storage_account_name}"
+  scope      = azurerm_storage_account.state.id
+  lock_level = "CanNotDelete"
+  notes      = "Terraform state for the landing zone."
 }

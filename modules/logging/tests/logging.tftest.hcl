@@ -26,6 +26,9 @@ variables {
   rules_file          = "../../detections/rules.yaml"
   queries_dir         = "../../detections"
   tags                = { owner = "platform-team", env = "prod", "cost-center" = "cc-001" }
+
+  private_endpoint_subnet_id    = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity/providers/Microsoft.Network/virtualNetworks/vnet-corp-internal/subnets/snet-private-endpoints"
+  key_vault_private_dns_zone_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net"
   diagnostic_targets = {
     "nsg-online-snet-app" = {
       resource_id     = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-corp-connectivity/providers/Microsoft.Network/networkSecurityGroups/nsg-corp-online-snet-app"
@@ -74,6 +77,15 @@ run "key_vault_hardened" {
   assert {
     condition     = azurerm_key_vault.this.purge_protection_enabled && azurerm_key_vault.this.public_network_access_enabled == false && azurerm_key_vault.this.rbac_authorization_enabled
     error_message = "Key Vault: purge protection, RBAC, no public access."
+  }
+  assert {
+    condition = (
+      azurerm_private_endpoint.key_vault.subnet_id == var.private_endpoint_subnet_id &&
+      azurerm_private_endpoint.key_vault.private_service_connection[0].private_connection_resource_id == azurerm_key_vault.this.id &&
+      tolist(azurerm_private_endpoint.key_vault.private_service_connection[0].subresource_names) == tolist(["vault"]) &&
+      tolist(azurerm_private_endpoint.key_vault.private_dns_zone_group[0].private_dns_zone_ids) == tolist([var.key_vault_private_dns_zone_id])
+    )
+    error_message = "With public access off, the vault is reachable only through a private endpoint in the private-endpoint subnet."
   }
 }
 

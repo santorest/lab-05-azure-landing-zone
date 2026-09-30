@@ -120,6 +120,19 @@ run "storage_is_private" {
   }
 }
 
+run "key_vault_private_dns_zone" {
+  command = apply
+
+  assert {
+    condition     = azurerm_private_dns_zone.vault.name == "privatelink.vaultcore.azure.net" && toset(keys(azurerm_private_dns_zone_virtual_network_link.vault)) == toset(["hub", "online", "internal"])
+    error_message = "Key Vault private DNS zone must exist and be linked to every VNet."
+  }
+  assert {
+    condition     = output.private_dns_zone_ids.vault == azurerm_private_dns_zone.vault.id && output.private_endpoint_subnet_id == azurerm_subnet.this["internal/snet-private-endpoints"].id
+    error_message = "Other modules need the vault zone and the private-endpoint subnet."
+  }
+}
+
 # --- Review Focus 1: spellings of management exposure ---------------------------------------
 
 run "rdp_from_internet_rejected" {

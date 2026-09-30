@@ -71,3 +71,13 @@ variable "enable_entra_diagnostics" {
   type        = bool
   default     = true
 }
+
+variable "private_endpoint_subnet_id" {
+  description = "Subnet for the Key Vault private endpoint (the vault has no public network access)."
+  type        = string
+}
+
+variable "key_vault_private_dns_zone_id" {
+  description = "privatelink.vaultcore.azure.net zone ID."
+  type        = string
+}

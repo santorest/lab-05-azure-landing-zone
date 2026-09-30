@@ -18,7 +18,15 @@ output "storage_account_id" {
   value       = azurerm_storage_account.workload.id
 }
 
-output "private_dns_zone_id" {
-  description = "privatelink.blob.core.windows.net zone ID."
-  value       = azurerm_private_dns_zone.blob.id
+output "private_dns_zone_ids" {
+  description = "Private DNS zone IDs: blob (privatelink.blob.core.windows.net), vault (privatelink.vaultcore.azure.net)."
+  value = {
+    blob  = azurerm_private_dns_zone.blob.id
+    vault = azurerm_private_dns_zone.vault.id
+  }
+}
+
+output "private_endpoint_subnet_id" {
+  description = "Subnet that hosts private endpoints."
+  value       = azurerm_subnet.this[var.private_endpoint_subnet_key].id
 }

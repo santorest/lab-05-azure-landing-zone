@@ -33,8 +33,8 @@ resource "azurerm_policy_definition" "deny_public_ip" {
   display_name        = "Deny public IP addresses"
   management_group_id = azurerm_management_group.root.id
   policy_rule = jsonencode({
-    if   = { field = "type", equals = "Microsoft.Network/publicIPAddresses" }
-    then = { effect = "[parameters('effect')]" }
+    "if"   = { field = "type", equals = "Microsoft.Network/publicIPAddresses" }
+    "then" = { effect = "[parameters('effect')]" }
   })
   parameters = jsonencode({
     effect = { type = "String", allowedValues = ["Deny", "Audit", "Disabled"], defaultValue = "Deny" }

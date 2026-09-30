@@ -67,9 +67,13 @@ module "logging" {
   tenant_id           = var.tenant_id
   subscription_id     = var.subscription_id
   key_vault_name      = var.key_vault_name
-  rules_file          = "${path.root}/../detections/rules.yaml"
-  queries_dir         = "${path.root}/../detections"
-  tags                = var.tags
+
+  private_endpoint_subnet_id    = module.network.private_endpoint_subnet_id
+  key_vault_private_dns_zone_id = module.network.private_dns_zone_ids.vault
+
+  rules_file  = "${path.root}/../detections/rules.yaml"
+  queries_dir = "${path.root}/../detections"
+  tags        = var.tags
   diagnostic_targets = merge(
     { for k, id in module.network.nsg_ids : "nsg-${replace(k, "/", "-")}" => { resource_id = id, category_groups = ["allLogs"] } },
     { "storage-blob" = { resource_id = "${module.network.storage_account_id}/blobServices/default", category_groups = ["allLogs"] } },

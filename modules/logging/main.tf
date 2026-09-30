@@ -11,7 +11,9 @@ resource "azurerm_sentinel_log_analytics_workspace_onboarding" "this" {
   workspace_id = azurerm_log_analytics_workspace.this.id
 }
 
-# Platform secret store; also a diagnostics source.
+# Platform secret store; also a diagnostics source. Purge protection (not prevent_destroy) guards its
+# contents: prevent_destroy would block the documented teardown and `terraform test` (security/EXCEPTIONS.md).
+# tflint-ignore: azurerm_resources_missing_prevent_destroy
 resource "azurerm_key_vault" "this" {
   name                          = var.key_vault_name
   location                      = var.location
@@ -27,6 +29,26 @@ resource "azurerm_key_vault" "this" {
   network_acls {
     default_action = "Deny"
     bypass         = "AzureServices"
+  }
+}
+
+resource "azurerm_private_endpoint" "key_vault" {
+  name                = "pe-${var.key_vault_name}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.private_endpoint_subnet_id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "psc-${var.key_vault_name}"
+    private_connection_resource_id = azurerm_key_vault.this.id
+    subresource_names              = ["vault"]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                 = "vault"
+    private_dns_zone_ids = [var.key_vault_private_dns_zone_id]
   }
 }
 

@@ -40,6 +40,10 @@ run "state_storage_is_locked_down" {
     condition     = azurerm_storage_container.tfstate.container_access_type == "private"
     error_message = "State container must be private."
   }
+  assert {
+    condition     = azurerm_management_lock.state.lock_level == "CanNotDelete" && azurerm_management_lock.state.scope == azurerm_storage_account.state.id
+    error_message = "The state account needs a CanNotDelete lock (accidental deletion by anyone, not only Terraform)."
+  }
 }
 
 run "deployer_ip_must_be_single_public_ipv4" {
