@@ -1,0 +1,27 @@
+%% Source outline for architecture.svg (the SVG is hand-drawn and kept in sync by hand; PNG rendered from the SVG with headless Chrome)
+flowchart LR
+  subgraph GOV[Governance]
+    corp[corp root MG] --> platform & lz[landing-zones] & sandbox
+    platform --> connectivity & management & identity
+    lz --> online[online: subscription] & internal
+    pol[Policy at corp: allowed locations, required tags, deny public IP, Key Vault diagnostics DINE]
+    budget[Budget 50/80/100 %]
+  end
+  subgraph NET[Network hub-spoke]
+    hub[hub: snet-shared NSG, GatewaySubnet, private DNS blob + vaultcore] <-->|peering| on[online: snet-app NSG]
+    hub <-->|peering| int[internal: snet-app NSG, snet-private-endpoints NSG]
+    fw[Azure Firewall Basic - optional, off]:::opt -.- hub
+    int --> pest[PE to Storage] & pekv[PE to Key Vault]
+  end
+  subgraph LOG[Logging and detection]
+    diag[Diagnostic settings: activity log, NSGs, blob, Key Vault, Entra] --> law[Log Analytics + Sentinel] --> rules[5 scheduled rules, ATT&CK-mapped]
+  end
+  subgraph IDN[Identity]
+    groups[Groups] --- ca[Conditional Access report-only + break glass] --- pim[PIM eligible only]
+  end
+  NET -.-> diag
+  IDN -.->|sign-in / audit logs| diag
+  subgraph CI[CI offline]
+    fmt[fmt/validate] --> test[terraform test, mocks] --> tflint --> checkov[Checkov] --> trivy[Trivy config] --> sa[no standing access] --> gl[gitleaks]
+  end
+  classDef opt stroke-dasharray: 5 4

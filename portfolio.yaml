@@ -1,0 +1,31 @@
+# Metadata used by the portfolio site's `import_lab` command (site repo). Not needed to run the lab.
+slug: azure-landing-zone
+category: cloud-security
+repo_url: https://github.com/santorest/lab-05-azure-landing-zone
+status: design               # design | in_progress | complete — reference design, never deployed
+difficulty: advanced         # beginner | intermediate | advanced
+featured: true
+# No lab output is shown; the only results are CI runs, linked from the write-up.
+sample_output_notice: false
+cover: diagrams/architecture.png
+writeup:
+  en: WRITEUP.md
+  es: WRITEUP.es.md
+title:
+  en: "Azure Secure Landing Zone with Terraform"
+  es: "Landing zone segura en Azure con Terraform"
+summary:
+  en: >-
+    Terraform landing zone for a fictional organisation: management groups and Azure Policy guardrails, hub-spoke
+    network with default-deny NSGs and private endpoints, Log Analytics and Sentinel with five ATT&CK-mapped
+    detections, report-only Conditional Access and PIM-eligible admin access — tested offline in CI.
+  es: >-
+    Landing zone en Terraform para una organización ficticia: grupos de administración y Azure Policy, red hub-spoke
+    con NSG de denegación por defecto y endpoints privados, Log Analytics y Sentinel con cinco detecciones mapeadas a
+    ATT&CK, acceso condicional en modo informe y PIM elegible — validada sin conexión en CI.
+tools: [Terraform, Azure, azurerm, azuread, Azure Policy, Microsoft Sentinel, KQL, Microsoft Entra ID, Checkov, Trivy, tflint, GitHub Actions]
+mitre_attack: [T1098, T1562, T1556, T1485, T1078]
+bundle:
+  title:
+    en: Lab source bundle
+    es: Paquete de fuentes del laboratorio
