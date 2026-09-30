@@ -4,6 +4,15 @@ updates:
     directories: ["/bootstrap", "/landing-zone", "/modules/*"]
     schedule:
       interval: weekly
+    # Provider majors (azurerm 5.x) change resource schemas: migrate deliberately, not through a bot PR.
+    ignore:
+      - dependency-name: "hashicorp/azurerm"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "hashicorp/azuread"
+        update-types: ["version-update:semver-major"]
+    groups:
+      providers:
+        patterns: ["*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

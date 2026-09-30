@@ -1,0 +1,13 @@
+# Trivy misconfiguration ignores. Each one has a matching row in security/EXCEPTIONS.md and a Checkov skip at the resource.
+misconfigurations:
+  - id: AZU-0057
+    paths: ["bootstrap/main.tf", "modules/network/storage.tf"]
+    statement: >-
+      Classic storage analytics logging needs shared-key access, which is disabled. The workload account's blob logs
+      go to Log Analytics through a diagnostic setting; the state account is created before the workspace exists.
+  - id: AZU-0058
+    paths: ["bootstrap/main.tf", "modules/network/storage.tf"]
+    statement: ZRS by design; geo-replication would copy data to a paired region outside allowed_locations.
+  - id: AZU-0060
+    paths: ["bootstrap/main.tf"]
+    statement: Platform-managed keys plus infrastructure encryption; customer-managed keys need a vault key and rotation process.

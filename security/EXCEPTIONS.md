@@ -26,4 +26,16 @@ the private-endpoint subnet with the `privatelink.vaultcore.azure.net` zone.
 
 ## Trivy
 
-None so far. Ignores go in `.trivyignore.yaml` with a reason and a row here.
+Ignores live in `.trivyignore.yaml` with the same reasons. They matter for the all-severity SARIF upload; none of
+them is High/Critical, so none would fail the gate.
+
+| Check | Resource | Why | Revisit when |
+|---|---|---|---|
+| AZU-0057 (storage logging) | state account, workload account | Classic storage analytics logging needs shared-key access, which is disabled. Workload blob logs go to Log Analytics through a diagnostic setting; the state account predates the workspace (see CKV2_AZURE_21). | As for CKV_AZURE_33 / CKV2_AZURE_21. |
+| AZU-0058 (geo-redundant replication) | state account, workload account | Same as CKV_AZURE_206. | Same. |
+| AZU-0060 (customer-managed keys) | state account | Same as CKV2_AZURE_1. | Same. |
+
+## Known display issue
+
+Checkov's SARIF output also lists its **skipped** checks, so GitHub code scanning shows the nine Checkov skips
+above as open alerts even though the Checkov job passes. The source of truth for exceptions is this file.

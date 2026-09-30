@@ -107,6 +107,7 @@ jobs:
           scan-ref: .
           severity: HIGH,CRITICAL
           exit-code: "1"
+          trivyignores: .trivyignore.yaml
       - name: Trivy config (SARIF, all severities)
         if: always()
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -116,6 +117,7 @@ jobs:
           format: sarif
           output: trivy.sarif
           exit-code: "0"
+          trivyignores: .trivyignore.yaml
       - name: Upload Trivy SARIF
         if: always() && github.event.pull_request.head.repo.fork != true
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
