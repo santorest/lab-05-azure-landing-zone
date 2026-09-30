@@ -16,13 +16,13 @@ title:
   es: "Landing zone segura en Azure con Terraform"
 summary:
   en: >-
-    Terraform landing zone for a fictional organisation: management groups and Azure Policy guardrails, hub-spoke
-    network with default-deny NSGs and private endpoints, Log Analytics and Sentinel with five ATT&CK-mapped
-    detections, report-only Conditional Access and PIM-eligible admin access — tested offline in CI.
+    Terraform landing zone for a fictional organisation: Azure Policy guardrails, hub-spoke network with
+    default-deny NSGs and private endpoints, Sentinel with five ATT&CK-mapped detections, report-only
+    Conditional Access and PIM-eligible admins — tested offline in CI.
   es: >-
-    Landing zone en Terraform para una organización ficticia: grupos de administración y Azure Policy, red hub-spoke
-    con NSG de denegación por defecto y endpoints privados, Log Analytics y Sentinel con cinco detecciones mapeadas a
-    ATT&CK, acceso condicional en modo informe y PIM elegible — validada sin conexión en CI.
+    Landing zone en Terraform para una organización ficticia: Azure Policy, red hub-spoke con NSG de denegación
+    por defecto y endpoints privados, Sentinel con cinco detecciones ATT&CK, acceso condicional en modo informe
+    y administradores elegibles en PIM — probada sin conexión en CI.
 tools: [Terraform, Azure, azurerm, azuread, Azure Policy, Microsoft Sentinel, KQL, Microsoft Entra ID, Checkov, Trivy, tflint, GitHub Actions]
 mitre_attack: [T1098, T1562, T1556, T1485, T1078]
 bundle:
