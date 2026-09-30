@@ -97,5 +97,17 @@ variable "nsg_rules" {
     destination_address_prefix = string
     destination_port_ranges    = list(string)
   })))
-  default = {}
+  # [demo] A "temporary" rule to let a vendor RDP in. Must be refused by the landing zone.
+  default = {
+    "online/snet-app" = [{
+      name                       = "allow-rdp-vendor"
+      priority                   = 200
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_address_prefix      = "Internet"
+      destination_address_prefix = "*"
+      destination_port_ranges    = ["3389"]
+    }]
+  }
 }
