@@ -130,7 +130,7 @@ The only results in this lab are test and scan outputs; there is no deployment t
 | `terraform test`, local run 2026-09-29 (Terraform 1.16.2) | **47 passed, 0 failed** (bootstrap 3, governance 9, network 15, firewall 3, logging 7, identity 6, landing-zone 4) |
 | Checkov 3.3.20, local run | **49 passed, 0 failed, 9 skipped**. Every skip is justified in `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + azurerm ruleset 0.32.0, local run | **0 issues** (one rule ignored on 4 resources, justified) |
-| CI on GitHub Actions | Filled in from the first green run once the repository is published |
+| CI on GitHub Actions, [run 36666439154](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36666439154) (commit `baa9e49`, Terraform 1.16.4) | **13/13 jobs passed**: the same 47 tests; Checkov 49 passed / 0 failed / 9 skipped; Trivy 0 High/Critical (its 5 Low/Medium findings are the same storage trade-offs, ignored with reasons); tflint clean; no standing privileged access; gitleaks: no leaks |
 
 ## 6. What was verified and what wasn't
 
@@ -171,6 +171,9 @@ Lessons from building it:
   a skip.
 - **Terraform's `&&` doesn't short-circuit.** A validation like "is an IP *and* not private" raised an evaluation
   error on malformed input instead of the intended message, until it was wrapped in `try(…, false)`.
+- **CI earned its keep on day one.** Dependabot's first run proposed azurerm 5.x for every module; the tests failed
+  on its breaking schema changes (private DNS zone links take different arguments). Provider majors are now held
+  back in `dependabot.yml` and will be a deliberate migration.
 - **`prevent_destroy` fights testing.** It can't vary per environment and blocks `terraform test`'s own
   teardown. The state account uses a CanNotDelete management lock instead.
 
