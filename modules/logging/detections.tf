@@ -19,8 +19,12 @@ resource "terraform_data" "detection_checks" {
 }
 
 resource "azurerm_sentinel_alert_rule_scheduled" "this" {
-  # Rules whose query file is missing are skipped here so file() can't fail before the precondition reports them.
-  for_each                   = { for k, r in local.rules : k => r if contains(local.kql_files, r.query_file) }
+  # Skipped: rules whose query file is missing (so file() can't fail before the precondition reports them), and
+  # rules that read Entra tables when Entra logs aren't exported (Sentinel rejects queries on missing tables).
+  for_each = {
+    for k, r in local.rules : k => r
+    if contains(local.kql_files, r.query_file) && (var.enable_entra_diagnostics || !try(r.requires_entra, false))
+  }
   name                       = each.key
   log_analytics_workspace_id = azurerm_sentinel_log_analytics_workspace_onboarding.this.workspace_id
   display_name               = each.value.name
@@ -33,5 +37,11 @@ resource "azurerm_sentinel_alert_rule_scheduled" "this" {
   techniques                 = each.value.techniques
   trigger_operator           = "GreaterThan"
   trigger_threshold          = 0
-  depends_on                 = [terraform_data.detection_checks]
+  # The tables a rule queries appear once logs flow; create rules after the settings that feed them. On a
+  # brand-new workspace a second apply may still be needed (docs/deploy.md).
+  depends_on = [
+    terraform_data.detection_checks,
+    azurerm_monitor_diagnostic_setting.activity_log,
+    azurerm_monitor_aad_diagnostic_setting.entra,
+  ]
 }

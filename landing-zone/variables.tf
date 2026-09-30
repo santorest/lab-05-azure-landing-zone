@@ -8,6 +8,10 @@ variable "location" {
   description = "Primary Azure region."
   type        = string
   default     = "eastus2"
+  validation {
+    condition     = contains(var.allowed_locations, var.location)
+    error_message = "location must be one of allowed_locations, or the landing zone's own policy would deny its later updates."
+  }
 }
 
 variable "subscription_id" {

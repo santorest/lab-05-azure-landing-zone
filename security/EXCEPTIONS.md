@@ -14,6 +14,9 @@ Reviewed 2026-09-29. A new skip needs a row here in the same pull request.
 | CKV2_AZURE_1 (customer-managed keys) | state account, workload account | Platform-managed keys with infrastructure (double) encryption. CMK needs a Key Vault key, an identity and a rotation process, which no data in this lab requires. | The account holds regulated data. |
 | CKV2_AZURE_21 (blob read logging) | `bootstrap` `azurerm_storage_container.tfstate` | The Log Analytics workspace doesn't exist when bootstrap runs. After the landing zone is applied, add the state account's blob service to `diagnostic_targets`. | Always, as a post-deploy step (docs/deploy.md). |
 
+| CKV_AZURE_220 (firewall policy IDPS in Deny) | `modules/firewall` `azurerm_firewall_policy.this` | IDPS exists only on Azure Firewall Premium; the optional firewall is Basic to keep cost down. | Workloads need inspection: move to Premium. |
+| CKV_AZURE_216 (threat intelligence in Deny) | `modules/firewall` `azurerm_firewall.this` | On the Basic SKU threat intelligence supports Alert mode only. | Same as above (Standard or Premium). |
+
 Fixed instead of skipped: CKV2_AZURE_32 (Key Vault private endpoint). The vault has public network access
 disabled, so without a private endpoint nothing could reach it. `modules/logging` now creates the endpoint in
 the private-endpoint subnet with the `privatelink.vaultcore.azure.net` zone.

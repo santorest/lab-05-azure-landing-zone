@@ -1,0 +1,5 @@
+resource "azurerm_role_assignment" "bad" {
+  scope                = "/subscriptions/00000000-0000-0000-0000-000000000000"
+  role_definition_name = "Role Based Access Control Administrator"
+  principal_id         = "11111111-1111-1111-1111-111111111111"
+}

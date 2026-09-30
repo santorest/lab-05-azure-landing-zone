@@ -49,8 +49,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: The check itself catches a known-bad file
-        run: "! bash scripts/check-standing-access.sh scripts/testdata/bad.tf.fixture"
+      - name: The check catches every known-bad form and passes the eligible-only pattern
+        run: bash scripts/test-check-standing-access.sh
       - name: No standing privileged access
         run: bash scripts/check-standing-access.sh
 
@@ -78,12 +78,14 @@ jobs:
         with:
           persist-credentials: false
       # The official image, pinned by digest (same as Lab 04). Skips are inline and listed in security/EXCEPTIONS.md.
+      # Checkov exits 0 when it can't parse a file, which silently skips it: fail on any parsing error too.
       - name: Checkov (Terraform)
-        run: >-
-          docker run --rm -v "$PWD:/repo" -w /repo
-          bridgecrew/checkov:3.3.20@sha256:6d20ebbcde58b2dce6e3151a6771fefa4d468281fe442475455623f5799b9f53
-          --directory . --framework terraform --quiet --compact
-          --output cli --output sarif --output-file-path console,checkov.sarif
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo             bridgecrew/checkov:3.3.20@sha256:6d20ebbcde58b2dce6e3151a6771fefa4d468281fe442475455623f5799b9f53             --directory . --framework terraform --quiet --compact             --output cli --output sarif --output-file-path console,checkov.sarif | tee checkov.txt
+          if grep -qE "Parsing errors: [1-9]" checkov.txt; then
+            echo "::error::Checkov could not parse some files, so they were not scanned"
+            exit 1
+          fi
       - name: Upload Checkov SARIF
         if: always() && github.event.pull_request.head.repo.fork != true
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2

@@ -16,6 +16,10 @@ variable "break_glass_group_id" {
   description = "Object ID of the emergency-access group excluded from every CA policy. Managed outside Terraform on purpose."
   type        = string
   default     = null
+  validation {
+    condition     = var.break_glass_group_id == null || can(regex("^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$", coalesce(var.break_glass_group_id, "-")))
+    error_message = "break_glass_group_id must be null or the group's object ID (a GUID)."
+  }
 }
 
 variable "ca_state" {
@@ -27,7 +31,7 @@ variable "ca_state" {
     error_message = "ca_state must be enabledForReportingButNotEnforced, enabled or disabled."
   }
   validation {
-    condition     = var.ca_state != "enabled" || var.break_glass_group_id != null
+    condition     = var.ca_state != "enabled" || trimspace(coalesce(var.break_glass_group_id, " ")) != ""
     error_message = "Enforcing Conditional Access requires break_glass_group_id (an excluded emergency-access group), or you can lock every admin out."
   }
 }

@@ -28,8 +28,10 @@ Each decision states the choice, what it costs and when to revisit it.
 ## 3. PIM eligibility, never standing admin access
 
 - **Choice:** Owner and User Access Administrator (subscription) and Global Administrator (tenant) are
-  *eligible* assignments for the `platform-admins` group, expiring after 365 days. No active privileged
-  assignment exists in the code; `scripts/check-standing-access.sh` fails CI if one appears.
+  *eligible* assignments for the `platform-admins` group. The two Azure role eligibilities expire after 365
+  days; the Global Administrator eligibility can't carry an expiry in the azuread provider, so the tenant's PIM
+  role settings decide its duration (set a maximum there). No active privileged assignment exists in the code;
+  `scripts/check-standing-access.sh` fails CI if one appears (by role name in any case, or by role ID).
 - **Why:** standing admin rights are the most valuable thing an attacker can steal. Eligibility needs an
   activation with justification, which is logged.
 - **Trade-off:** needs Entra ID P2 and adds a step for admins. The DeployIfNotExists policy's managed identity

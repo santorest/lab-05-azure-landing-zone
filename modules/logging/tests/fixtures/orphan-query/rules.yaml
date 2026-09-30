@@ -1,0 +1,11 @@
+# One defect: orphan.kql is not referenced by any rule.
+rules:
+  - id: used
+    name: used
+    description: Fixture rule
+    severity: Low
+    frequency: PT1H
+    period: PT1H
+    tactics: [Impact]
+    techniques: [T1485]
+    query_file: used.kql
