@@ -20,7 +20,7 @@ bundle: "Publicado en el sitio del portafolio con su suma SHA-256"
 > público, Log Analytics y Sentinel con cinco detecciones, y acceso de administrador que solo existe a través
 > de PIM. Todo se prueba sin conexión en CI con proveedores simulados, incluidas pruebas que demuestran que el
 > código **rechaza** entradas inseguras.
-> **Entregable: diseño de referencia. Probado y escaneado en CI, nunca desplegado en Azure.**
+> **Entregable: código Terraform, probado y escaneado en CI, nunca desplegado en Azure.**
 
 | | |
 |---|---|
