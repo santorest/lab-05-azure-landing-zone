@@ -19,7 +19,7 @@ bundle: "Published on the portfolio site with its SHA-256 checksum"
 > exposes a management port and data services have no public endpoint, Log Analytics and Sentinel with five
 > detections, and admin access that exists only through PIM. Everything is tested offline in CI with mock
 > providers, including tests that prove the code **refuses** unsafe input.
-> **Deliverable: reference design. Tested and scanned in CI, never deployed to Azure.**
+> **Deliverable: Terraform code, tested and scanned in CI, never deployed to Azure.**
 
 | | |
 |---|---|
