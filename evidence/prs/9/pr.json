@@ -1,0 +1,187 @@
+{
+  "baseRefName": "main",
+  "body": "**Demo PR — not to be merged.** Adds an Inbound Allow 3389 from `Internet` rule on `online/snet-app` through the root `nsg_rules` default, the kind of \"temporary vendor access\" change the landing zone must refuse. The CI result is recorded in `docs/demo-prs.md`; this PR is then closed unmerged.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": "2026-09-30T04:05:25Z",
+  "commits": [
+    {
+      "authoredDate": "2026-09-30T04:03:44Z",
+      "authors": [
+        {
+          "email": "37381624+santorest@users.noreply.github.com",
+          "id": "MDQ6VXNlcjM3MzgxNjI0",
+          "login": "santorest",
+          "name": "Santiago Restrepo Sánchez"
+        },
+        {
+          "email": "noreply@anthropic.com",
+          "id": "MDQ6VXNlcjgxODQ3",
+          "login": "claude",
+          "name": "Claude Opus 5.5"
+        }
+      ],
+      "committedDate": "2026-09-30T04:03:44Z",
+      "messageBody": "Deliberately unsafe demo change: CI must refuse it. Not to be merged.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+      "messageHeadline": "[demo] allow RDP from the Internet for a vendor",
+      "oid": "c5a7af97e759f1a7f66123882b0ab8b27d781f15"
+    }
+  ],
+  "createdAt": "2026-09-30T04:03:48Z",
+  "headRefName": "demo/rdp-from-internet",
+  "mergedAt": null,
+  "number": 9,
+  "state": "CLOSED",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256245",
+      "name": "fmt",
+      "startedAt": "2026-09-30T04:03:55Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:06Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256494",
+      "name": "terraform (bootstrap)",
+      "startedAt": "2026-09-30T04:03:55Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256394",
+      "name": "terraform (modules/governance)",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256452",
+      "name": "terraform (modules/network)",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256368",
+      "name": "terraform (modules/firewall)",
+      "startedAt": "2026-09-30T04:03:55Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256263",
+      "name": "terraform (modules/logging)",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256282",
+      "name": "terraform (modules/identity)",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:06Z",
+      "conclusion": "FAILURE",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256478",
+      "name": "terraform (landing-zone)",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:03:58Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256354",
+      "name": "policy-checks",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256104",
+      "name": "tflint",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:24Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256330",
+      "name": "checkov",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:22Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256439",
+      "name": "trivy-config",
+      "startedAt": "2026-09-30T04:03:55Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36667187884/job/109734256260",
+      "name": "secrets",
+      "startedAt": "2026-09-30T04:03:54Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:20Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/runs/109734348248",
+      "name": "Checkov",
+      "startedAt": "2026-09-30T04:04:16Z",
+      "status": "COMPLETED",
+      "workflowName": ""
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-30T04:04:13Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/santorest/lab-05-azure-landing-zone/runs/109734329093",
+      "name": "Trivy",
+      "startedAt": "2026-09-30T04:04:11Z",
+      "status": "COMPLETED",
+      "workflowName": ""
+    }
+  ],
+  "title": "[demo] allow RDP from the Internet",
+  "url": "https://github.com/santorest/lab-05-azure-landing-zone/pull/9"
+}

@@ -1,6 +1,5 @@
 # Lab 05 — Azure secure landing zone with Terraform
 
-[![CI](https://github.com/santorest/lab-05-azure-landing-zone/actions/workflows/ci.yml/badge.svg)](https://github.com/santorest/lab-05-azure-landing-zone/actions/workflows/ci.yml)
 
 Terraform landing zone for a fictional organisation ("Corp"): management groups and Azure Policy guardrails,
 a hub-spoke network with default-deny NSGs and private endpoints, Log Analytics and Microsoft Sentinel with five
