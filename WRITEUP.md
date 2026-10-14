@@ -8,7 +8,6 @@ date: "2026-09-29"
 time_to_reproduce: "1 hour offline; 1–2 days to deploy and verify in Azure"
 skills: [Terraform, Azure Policy, Azure networking, Microsoft Sentinel, KQL, Microsoft Entra ID, Checkov, Trivy, tflint, GitHub Actions]
 frameworks: [Microsoft Cloud Adoption Framework, CIS Microsoft Azure Foundations Benchmark, MITRE ATT&CK]
-repo: "https://github.com/santorest/lab-05-azure-landing-zone"
 bundle: "Published on the portfolio site with its SHA-256 checksum"
 ---
 
@@ -132,8 +131,8 @@ The only results in this lab are test and scan outputs; there is no deployment t
 | `terraform test`, local run 2026-09-30 after the final-review fixes (Terraform 1.16.2) | **52 passed, 0 failed** (bootstrap 3, governance 9, network 15, firewall 3, logging 9, identity 8, landing-zone 5) |
 | Checkov 3.3.20, local run | **50 passed, 0 failed, 11 skipped, 0 parsing errors**. Every skip is justified in `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + azurerm ruleset 0.32.0, local run | **0 issues** (one rule ignored on 4 resources, justified) |
-| Demo PR [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP from the Internet ([details](docs/demo-prs.md)) | **Refused**: `terraform (landing-zone)` failed on the management-port validation; the other 12 jobs passed, **including Checkov and Trivy, which did not flag the rule** |
-| CI on GitHub Actions, [run 36728843729](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36728843729) (commit `49d9f7f`, after the final-review fixes, Terraform 1.16.4) | **13/13 jobs passed**: the same 52 tests; Checkov 50 passed / 0 failed / 11 skipped, 0 parsing errors; Trivy 0 High/Critical (its Low/Medium storage findings ignored with reasons); tflint clean; standing-access check caught all 5 known-bad fixtures and passed the repo; gitleaks: no leaks |
+| Demo PR #9 (archived in `evidence/prs/9/`): RDP from the Internet ([details](docs/demo-prs.md)) | **Refused**: `terraform (landing-zone)` failed on the management-port validation; the other 12 jobs passed, **including Checkov and Trivy, which did not flag the rule** |
+| CI on GitHub Actions, run 36728843729 (2026-09-30, archived in `evidence/runs/36728843729/`) (commit `49d9f7f`, after the final-review fixes, Terraform 1.16.4) | **13/13 jobs passed**: the same 52 tests; Checkov 50 passed / 0 failed / 11 skipped, 0 parsing errors; Trivy 0 High/Critical (its Low/Medium storage findings ignored with reasons); tflint clean; standing-access check caught all 5 known-bad fixtures and passed the repo; gitleaks: no leaks |
 
 ## 6. What was verified and what wasn't
 
@@ -189,7 +188,7 @@ Lessons from building it:
 
 ## 8. Reproduce it yourself
 
-- Clone: `git clone https://github.com/santorest/lab-05-azure-landing-zone.git`
+- Browse the source: [on this site](./), file by file.
 - Run every check offline: `bash scripts/test-all.sh` (Terraform ≥ 1.9, no Azure account).
 - Deploy: [docs/deploy.md](docs/deploy.md); tear down: [docs/teardown-and-cost.md](docs/teardown-and-cost.md).
 - Download bundle: from the portfolio site (SHA-256 shown next to the download).

@@ -8,7 +8,6 @@ date: "2026-09-29"
 time_to_reproduce: "1 hora sin conexión; 1–2 días para desplegar y verificar en Azure"
 skills: [Terraform, Azure Policy, redes de Azure, Microsoft Sentinel, KQL, Microsoft Entra ID, Checkov, Trivy, tflint, GitHub Actions]
 frameworks: [Microsoft Cloud Adoption Framework, CIS Microsoft Azure Foundations Benchmark, MITRE ATT&CK]
-repo: "https://github.com/santorest/lab-05-azure-landing-zone"
 bundle: "Publicado en el sitio del portafolio con su suma SHA-256"
 ---
 
@@ -136,8 +135,8 @@ Los únicos resultados de este laboratorio son salidas de pruebas y escáneres; 
 | `terraform test`, ejecución local del 2026-09-30 tras las correcciones de la revisión final (Terraform 1.16.2) | **52 correctas, 0 fallidas** (bootstrap 3, governance 9, network 15, firewall 3, logging 9, identity 8, landing-zone 5) |
 | Checkov 3.3.20, ejecución local | **50 correctas, 0 fallidas, 11 omitidas, 0 errores de análisis**. Cada omisión está justificada en `security/EXCEPTIONS.md` |
 | tflint 0.64.0 + reglas azurerm 0.32.0, ejecución local | **0 problemas** (una regla ignorada en 4 recursos, justificada) |
-| PR de demostración [#9](https://github.com/santorest/lab-05-azure-landing-zone/pull/9): RDP desde Internet ([detalles](docs/demo-prs.md), en inglés) | **Rechazado**: `terraform (landing-zone)` falló en la validación de puertos de administración; los otros 12 trabajos pasaron, **incluidos Checkov y Trivy, que no detectaron la regla** |
-| CI en GitHub Actions, [ejecución 36728843729](https://github.com/santorest/lab-05-azure-landing-zone/actions/runs/36728843729) (commit `49d9f7f`, tras las correcciones de la revisión final, Terraform 1.16.4) | **13/13 trabajos correctos**: las mismas 52 pruebas; Checkov 50 correctas / 0 fallidas / 11 omitidas, 0 errores de análisis; Trivy 0 High/Critical (sus hallazgos Low/Medium de almacenamiento, ignorados con motivo); tflint sin problemas; la comprobación de acceso permanente detectó los 5 casos incorrectos conocidos y aprobó el repositorio; gitleaks: sin fugas |
+| PR de demostración #9 (archivado en `evidence/prs/9/`): RDP desde Internet ([detalles](docs/demo-prs.md), en inglés) | **Rechazado**: `terraform (landing-zone)` falló en la validación de puertos de administración; los otros 12 trabajos pasaron, **incluidos Checkov y Trivy, que no detectaron la regla** |
+| CI en GitHub Actions, ejecución 36728843729 (2026-09-30, archivada en `evidence/runs/36728843729/`) (commit `49d9f7f`, tras las correcciones de la revisión final, Terraform 1.16.4) | **13/13 trabajos correctos**: las mismas 52 pruebas; Checkov 50 correctas / 0 fallidas / 11 omitidas, 0 errores de análisis; Trivy 0 High/Critical (sus hallazgos Low/Medium de almacenamiento, ignorados con motivo); tflint sin problemas; la comprobación de acceso permanente detectó los 5 casos incorrectos conocidos y aprobó el repositorio; gitleaks: sin fugas |
 
 ## 6. Qué se verificó y qué no
 
@@ -196,7 +195,7 @@ Lecciones de la construcción:
 
 ## 8. Reprodúcelo
 
-- Clonar: `git clone https://github.com/santorest/lab-05-azure-landing-zone.git`
+- Explorar el código: [en este sitio](./), archivo por archivo.
 - Ejecutar todas las comprobaciones sin conexión: `bash scripts/test-all.sh` (Terraform ≥ 1.9, sin cuenta de Azure).
 - Desplegar: [docs/deploy.md](docs/deploy.md); desmontar: [docs/teardown-and-cost.md](docs/teardown-and-cost.md).
 - Descargar el paquete: desde el sitio del portafolio (la suma SHA-256 aparece junto a la descarga).
